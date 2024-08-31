@@ -1,8 +1,12 @@
-import tkinter as tk
+import customtkinter as ctk
 import numpy as np
 import matplotlib.pyplot as plt
-from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+#Definir estilos custom tkinter
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
 
 entradas = np.empty((0,2),dtype=float)
 
@@ -10,7 +14,7 @@ entradas = np.empty((0,2),dtype=float)
 
 def generarPlano(frame):
     global ax,canvas
-    figura = plt.figure(figsize=(5,5),dpi=100,facecolor='lightskyblue')
+    figura = plt.figure(figsize=(5,5),dpi=100)
     ax = figura.add_subplot(111)
     ax.set_xlim(-5,5)
     ax.set_ylim(-5,5)
@@ -21,7 +25,7 @@ def generarPlano(frame):
 
     canvas = FigureCanvasTkAgg(figura, master=frame)
     canvas.draw()
-    canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+    canvas.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
     #CONECTAR CON FUNCION DE EVENTO
     canvas.mpl_connect('button_press_event',onclick)
     
@@ -88,45 +92,52 @@ def quit():
     ventana.destroy()
 
 
-ventana = tk.Tk()
+ventana = ctk.CTk()
 ventana.title("Practica 1")
+
+#Titulo
+frameTitle = ctk.CTkFrame(ventana)
+Title = ctk.CTkLabel(frameTitle,text="PERCEPTRON",padx=300,font=("Arial",25),pady=10)
+Title.grid(row=0,column=1)
+frameTitle.pack(side="top",fill=ctk.BOTH,expand=True)
 
 
 #INTERFAZ ENTRADAS
-frameInputs = tk.Frame(ventana,bg='lightblue')
+frameInputs = ctk.CTkFrame(ventana)
 
-TITULO = tk.Label(frameInputs,text="DEFINIR VALORES",padx=10,bg='lightblue')
+
+TITULO = ctk.CTkLabel(frameInputs,text="DEFINIR VALORES",padx=10)
 TITULO.grid(row=0,column=1)
 
 #W1
-LW1 = tk.Label(frameInputs,text="W1",padx=10,bg='lightblue')
+LW1 = ctk.CTkLabel(frameInputs,text="W1",padx=10)
 LW1.grid(row=1,column=0)
-W1 = tk.StringVar()
-TW1 = tk.Entry(frameInputs,textvariable=W1)
+W1 = ctk.StringVar()
+TW1 = ctk.CTkEntry(frameInputs,textvariable=W1)
 TW1.grid(row=1,column=1,pady=20)
 
 #W2
-LW2 = tk.Label(frameInputs,text="W2",padx=10,bg='lightblue')
+LW2 = ctk.CTkLabel(frameInputs,text="W2",padx=10)
 LW2.grid(row=2,column=0)
-W2 = tk.StringVar()
-TW2 = tk.Entry(frameInputs,textvariable=W2)
+W2 = ctk.StringVar()
+TW2 = ctk.CTkEntry(frameInputs,textvariable=W2)
 TW2.grid(row=2,column=1)
 
 #BIAS
-LB = tk.Label(frameInputs,text="BIAS",padx=10,bg='lightblue')
+LB = ctk.CTkLabel(frameInputs,text="BIAS",padx=10)
 LB.grid(row=3,column=0)
-B = tk.StringVar()
-TB = tk.Entry(frameInputs,textvariable=B)
+B = ctk.StringVar()
+TB = ctk.CTkEntry(frameInputs,textvariable=B)
 TB.grid(row=3,column=1,pady=20,padx=20)
 
 #boton
-btn=tk.Button(frameInputs,text = 'PLOT', command = Clasificar)
+btn= ctk.CTkButton(frameInputs,text = 'PLOT', command = Clasificar)
 btn.grid(row=4,column=1,pady=20,padx=20)
 
-frameInputs.pack(side='right',fill=tk.BOTH,expand=True)
+frameInputs.pack(side='right',fill=ctk.BOTH,expand=True)
 
 #INTERFAZ GRAFICA
-frame = tk.Frame(ventana)
+frame = ctk.CTkFrame(ventana)
 frame.pack(side='left')
 
 generarPlano(frame)
