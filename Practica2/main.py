@@ -15,6 +15,7 @@ ctk.set_default_color_theme("blue")
 entradas = np.empty((0,2),dtype=float)
 salidaDeseada = np.array([])
 
+ea = 0
 w1 = random.random()
 w2 = random.random()
 bias = random.random()
@@ -68,9 +69,13 @@ def PuntosExtras():
     Fp = np.sum((salidaActual == 1) & (salidaDeseada == 0))
     Fn = np.sum((salidaActual == 0) & (salidaDeseada == 1))
     Tn = np.sum((salidaActual == 0) & (salidaDeseada == 0))
-    presicion = Tp/(Tp+Fp)
-    sensibilidad = Tp/(Tp+Fn)
-    f1_score = (2*(presicion*sensibilidad))/(presicion+sensibilidad)
+    try:
+        accuracy = (Tp+Tn)/(Tp+Tn+Fp+Fn)
+        presicion = Tp/(Tp+Fp)
+        sensibilidad = Tp/(Tp+Fn)
+        f1_score = (2*(presicion*sensibilidad))/(presicion+sensibilidad)
+    except:
+        print("Uno de los datos intenta dividirse entre cero")
     print(Tp)
     print(Fp)
     print(Fn)
@@ -78,7 +83,7 @@ def PuntosExtras():
     matrizVentana = ctk.CTkToplevel(ventana)
     matrizVentana.title("Matriz de confusion")
     frameTitle = ctk.CTkFrame(matrizVentana)
-    tituloEmergente = ctk.CTkLabel(frameTitle,text="PUNTOS EXTRAS",padx=10)
+    tituloEmergente = ctk.CTkLabel(frameTitle,text="MATRIZ DE CONFUSION",font=("Arial",25),padx=10)
     tituloEmergente.grid(row=0,column=1)
     frameTitle.pack(side="top",fill=ctk.BOTH,expand=True)
 
@@ -102,19 +107,26 @@ def PuntosExtras():
     frameDatos = ctk.CTkFrame(matrizVentana)
     frameDatos.pack(side="right",fill=ctk.BOTH,expand=True)
 
-    LPresicion = ctk.CTkLabel(frameDatos,text="Presicion: ",padx=10)
+    LPresicion = ctk.CTkLabel(frameDatos,text="Presicion: ",font=("Arial",14),padx=10)
     LPresicion.grid(row=0,column=0)
     Varpresicion = ctk.StringVar()
     Varpresicion.set(str(round(presicion,2)))
-    TPres = ctk.CTkLabel(frameDatos,textvariable=Varpresicion)
-    TPres.grid(row=0,column=1)
+    TPres = ctk.CTkLabel(frameDatos,textvariable=Varpresicion,font=("Arial",14))
+    TPres.grid(row=0,column=1,padx=10)
 
-    Lf1 = ctk.CTkLabel(frameDatos,text="F1_Score: ",padx=10)
+    Lf1 = ctk.CTkLabel(frameDatos,text="F1_Score: ",padx=10,font=("Arial",14))
     Lf1.grid(row=1,column=0)
     Varf1 = ctk.StringVar()
     Varf1.set(str(round(f1_score,2)))
-    Tf1 = ctk.CTkLabel(frameDatos,textvariable=Varf1)
-    Tf1.grid(row=1,column=1)
+    Tf1 = ctk.CTkLabel(frameDatos,textvariable=Varf1,font=("Arial",14))
+    Tf1.grid(row=1,column=1,padx=10)
+
+    LAcc = ctk.CTkLabel(frameDatos,text="Accuracy: ",padx=10,font=("Arial",14))
+    LAcc.grid(row=2,column=0)
+    Varacc = ctk.StringVar()
+    Varacc.set(str(round(accuracy,2)))
+    TAcc = ctk.CTkLabel(frameDatos,textvariable=Varacc,font=("Arial",14))
+    TAcc.grid(row=2,column=1,padx=10)
                          
                          
 
@@ -122,11 +134,14 @@ def PuntosExtras():
     
 
 def Entrenar():
-    global entradas,w1,w2,bias,epocas,salidaActual
+    global entradas,w1,w2,bias,epocas,salidaActual,ea
     etha = float(TETHA.get())
+    maxepocas = float(TEPOCS.get())
     print(etha)
     epocas = 0
-    while epocas < 100:
+    while epocas < maxepocas:
+        ea += 1
+        EA.set(str(round(ea,2)))
         m = -w1/w2
         c = -bias/w2
         x = np.linspace(-5, 5, 400) #valores en un rango 
@@ -138,19 +153,20 @@ def Entrenar():
             z = w1*entradas[i,0]+w2*entradas[i,1]+bias
             if z <= 0:
                 salidaActual=np.append(salidaActual,0)
-                ax.plot(entradas[i,0],entradas[i,1],'Pr')
+                ax.plot(entradas[i,0],entradas[i,1],'Pg')
             else:
                 salidaActual=np.append(salidaActual,1)
                 ax.plot(entradas[i,0],entradas[i,1],'Pb')
         error = salidaDeseada - salidaActual
+        print("Error",error)
         canvas.draw()
         #si hubo error
         if np.any(error):
             for i in range(len(entradas)):
                 bias = bias + etha*error[i]
                 w1 = w1 + etha*error[i]*entradas[i,0]
-                w1 = w1 + etha*error[i]*entradas[i,1]
-                w2 = w2 + etha*error[i]*entradas[i,0]
+                #w1 = w1 + etha*error[i]*entradas[i,1]
+                #w2 = w2 + etha*error[i]*entradas[i,0]
                 w2 = w2 + etha*error[i]*entradas[i,1]
                 B.set(str(round(bias,2)))
                 W1.set(str(round(w1,2)))
@@ -222,15 +238,30 @@ LETHA = ctk.CTkLabel(frameInputs,text="ETHA",padx=10)
 LETHA.grid(row=4,column=0)
 ETHA = ctk.StringVar()
 TETHA = ctk.CTkEntry(frameInputs,textvariable=ETHA)
-TETHA.grid(row=4,column=1,padx=20)
+TETHA.grid(row=4,column=1,pady=20,padx=20)
+
+#PARAMETRO DE EPOCAS
+LEPOCS = ctk.CTkLabel(frameInputs,text="EPOCAS",padx=10)
+LEPOCS.grid(row=5,column=0)
+EPOCS = ctk.StringVar()
+TEPOCS = ctk.CTkEntry(frameInputs,textvariable=EPOCS)
+TEPOCS.grid(row=5,column=1,padx=20)
+
+#EPOCA ACTUAL
+LEA = ctk.CTkLabel(frameInputs,text="EPOCA: ",padx=10)
+LEA.grid(row=6,column=0)
+EA = ctk.StringVar()
+EA.set(str(round(ea,2)))
+TEA = ctk.CTkLabel(frameInputs,textvariable=EA)
+TEA.grid(row=6,column=1,pady=20)
 
 #boton
 btn= ctk.CTkButton(frameInputs,text = 'PLOT', command = Threading)
-btn.grid(row=5,column=1,pady=20,padx=20)
+btn.grid(row=7,column=1,pady=20,padx=20)
 
 #boton
 btn2= ctk.CTkButton(frameInputs,text = 'Datos Adicionales', command = PuntosExtras)
-btn2.grid(row=6,column=1,pady=20,padx=20)
+btn2.grid(row=8,column=1,pady=20,padx=20)
 
 frameInputs.pack(side='right',fill=ctk.BOTH,expand=True)
 
