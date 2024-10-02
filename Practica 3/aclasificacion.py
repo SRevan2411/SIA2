@@ -31,7 +31,7 @@ class Adaline():
             v = self.predict(x,activacion)
             
             ecm = np.mean((d-v)**2)
-            if ecm < 0.05:
+            if ecm < 0.03:
                 break
             match activacion:
                 case 'lineal':
@@ -115,11 +115,13 @@ def onclick(event):
         print(salidaDeseada.shape)
 
 def Entrenar():
+    etha = float(TETHA.get())
+    maxepocas = int(TEPOCS.get())
     global entradas,w,salidaDeseada
     entradas = np.hstack((np.ones((entradas.shape[0],1)),entradas))
     print(entradas)
     neurona = Adaline(w,ax)
-    neurona.train(entradas,salidaDeseada,0.3,'sigmoide',200)
+    neurona.train(entradas,salidaDeseada,etha,'sigmoide',maxepocas)
     print("acabo")
 
 def Threading():
