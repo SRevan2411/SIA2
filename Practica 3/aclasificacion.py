@@ -55,7 +55,9 @@ class Adaline():
                 print(self.w[i])
 
             '''
-            
+            B.set(str(round(self.w[0],2)))
+            W1.set(str(round(self.w[1],2)))
+            W2.set(str(round(self.w[2],2)))
             self.plot_contour(d,x,activacion)
 
             
@@ -134,7 +136,7 @@ ctk.set_default_color_theme("blue")
 ventana = ctk.CTk()    
 #Titulo
 frameTitle = ctk.CTkFrame(ventana)
-Title = ctk.CTkLabel(frameTitle,text="PERCEPTRON",padx=300,font=("Arial",25),pady=10)
+Title = ctk.CTkLabel(frameTitle,text="ADALINE CLASIFICACION",padx=300,font=("Arial",25),pady=10)
 Title.grid(row=0,column=1)
 frameTitle.pack(side="top",fill=ctk.BOTH,expand=True)
 

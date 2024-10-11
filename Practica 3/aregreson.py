@@ -28,36 +28,37 @@ class Adaline():
     
     def train(self,x,d,etha,activacion,epocas):
         for z in range(epocas):
-            print(x)
             v = np.dot(self.w,x.T)
             ecm = np.mean((d-v)**2)
             if ecm < 0.45:
                 break
             e = d-v
-            print(e)
+
+            print(f"Deseada: {d}, Actual: {v}")
+
+
             self.w[0] = self.w[0] + etha * np.sum(e)
             self.w[1] = self.w[1] + etha * np.sum(e * x[:,1])
             
             print(self.w)
-            
-            
-            
-            
           
             ax.clear()
             ax.set_xlim(-5,5)
             ax.set_ylim(-5,5)
-
+            #Actualizar labels
+            B.set(str(round(self.w[0],2)))
+            W1.set(str(round(self.w[1],2)))
             #Generar ejes de coordenadas
+            nv = np.dot(self.w,x.T)
             ax.axhline(0, color='black',linewidth=1)
             ax.axvline(0, color='black',linewidth=1)
             ax.plot(x[:,1],d,'Pg')
-            ax.plot(x[:,1],v,marker='o')
+            ax.plot(x[:,1],nv)
             canvas.draw()
            
-        print(self.predict(x,activacion))
+        
         ecm = np.mean((d-v)**2)
-        print(ecm)
+        
         
 
 
@@ -95,12 +96,14 @@ def onclick(event):
         print(salidaDeseada.shape)
 
 def Entrenar():
+    etha = float(TETHA.get())
+    maxepocas = int(TEPOCS.get())
     global entradas,w,salidaDeseada
     print(entradas.shape)
     entradas = np.hstack((np.ones((entradas.shape[0],1)),entradas))
     print(entradas)
     neurona = Adaline(w,ax)
-    neurona.train(entradas,salidaDeseada,0.03,'lineal',100)
+    neurona.train(entradas,salidaDeseada,etha,'lineal',maxepocas)
     print("acabo")
 
 def Threading():
@@ -113,7 +116,7 @@ ctk.set_default_color_theme("blue")
 ventana = ctk.CTk()    
 #Titulo
 frameTitle = ctk.CTkFrame(ventana)
-Title = ctk.CTkLabel(frameTitle,text="PERCEPTRON",padx=300,font=("Arial",25),pady=10)
+Title = ctk.CTkLabel(frameTitle,text="ADALINE REGRESIÓN",padx=300,font=("Arial",25),pady=10)
 Title.grid(row=0,column=1)
 frameTitle.pack(side="top",fill=ctk.BOTH,expand=True)
 
