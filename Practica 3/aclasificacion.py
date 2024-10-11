@@ -31,7 +31,7 @@ class Adaline():
             v = self.predict(x,activacion)
             
             ecm = np.mean((d-v)**2)
-            if ecm < 0.03:
+            if ecm < 0.02:
                 break
             match activacion:
                 case 'lineal':
