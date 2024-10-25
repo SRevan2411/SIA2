@@ -44,7 +44,7 @@ class OLN:
         '''
         #lr learning rate
         p = X.shape[1] #Numero de ejemplos
-        tol=0.10
+        tol=0.07
         for _ in range(epochs):
             Z = np.dot(self.w, X) + self.b
             #Yest: y estimado, dY: derivada de Y
@@ -73,7 +73,7 @@ class OLN:
         for i in range(n_classes):
         # Obtener índices de muestras que pertenecen a la clase i
             indices = np.where(Y[i] == 1)[0]
-            ax.scatter(X[0, indices], X[1, indices],edgecolors='k',c=colors[i], marker='o', s=100, label='Datos de entrenamiento')
+            ax.scatter(X[0, indices], X[1, indices],edgecolors='k',c=colors[i], marker='o', s=100)
 
 
         x_min, x_max = X[0, :].min() - 1, X[0, :].max() + 1
@@ -152,7 +152,7 @@ def Proceso():
     # Definir parámetros
     n_inputs = X.shape[0]  # 2
     n_outputs = Y.shape[0]  # 4
-    learning_rate = 0.5
+    learning_rate = 0.3
     red = OLN(n_inputs, n_outputs, activation_function=logistic)
     red.fit(X, Y, epochs=5000, lr=learning_rate,n_classes=n_outputs)
 
@@ -171,7 +171,7 @@ ctk.set_default_color_theme("blue")
 ventana = ctk.CTk()    
 #Titulo
 frameTitle = ctk.CTkFrame(ventana)
-Title = ctk.CTkLabel(frameTitle,text="ADALINE CLASIFICACION",padx=300,font=("Arial",25),pady=10)
+Title = ctk.CTkLabel(frameTitle,text="RED UNICAPA",padx=300,font=("Arial",25),pady=10)
 Title.grid(row=0,column=1)
 frameTitle.pack(side="top",fill=ctk.BOTH,expand=True)
 
