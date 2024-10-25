@@ -7,8 +7,14 @@ from threading import *
 import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from sklearn import metrics
+from customtkinter import filedialog
 
 #Definicion de la red y sus funciones de activación
+FilePath1 = None
+FilePath2 = None
+figura = plt.figure()
+ax = figura.add_subplot(111)
+
 
 def linear(z, derivate = False):
     a = z
@@ -92,19 +98,28 @@ class OLN:
         ax.legend()
         canvas.draw() 
 
+def getFilepath1():
+    global FilePath1
+    FilePath1 = filedialog.askopenfile()
+    if FilePath1 != None:
+        print(FilePath1.name)
+
+def getFilepath2():
+    global FilePath2
+    FilePath2 = filedialog.askopenfile()
+    if FilePath2 != None:
+        print(FilePath2.name)
 
 def generarPlano(frame,n_classes):
-    hue_values = np.linspace(0, 1, n_classes, endpoint=False)
-    colors = [hsv_to_rgb([hue, 1, 1]) for hue in hue_values]
-    global ax, canvas 
-    figura = plt.figure()
-    ax = figura.add_subplot(111)
-    canvas = FigureCanvasTkAgg(figura, master=frame)
-    
-    for i in range(n_classes):
-    # Obtener índices de muestras que pertenecen a la clase i
-        indices = np.where(Y[i] == 1)[0]
-        ax.scatter(X[0, indices], X[1, indices],edgecolors='k',c=colors[i], marker='o', s=100, label='Datos de entrenamiento')
+    global ax, canvas, figura
+    ax.clear()
+    if FilePath2 != None and FilePath1 != None:
+        hue_values = np.linspace(0, 1, n_classes, endpoint=False)
+        colors = [hsv_to_rgb([hue, 1, 1]) for hue in hue_values]
+        for i in range(n_classes):
+        # Obtener índices de muestras que pertenecen a la clase i
+            indices = np.where(Y[i] == 1)[0]
+            ax.scatter(X[0, indices], X[1, indices],edgecolors='k',c=colors[i], marker='o', s=100, label='Datos de entrenamiento')
     canvas.draw()
     canvas.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
 
@@ -120,17 +135,22 @@ def PuntosExtras():
     Y_pred = red.predict(X)
 
     # Para clasificación multi-etiqueta, establecer un umbral (por ejemplo, 0.5)
-    Y_pred_binary = (Y_pred > 0.1).astype(int)
-
-    fig,axes = plt.subplots(1, n_outputs, figsize=(10,5))
+    Y_pred_binary = np.argmax(Y_pred,axis=0)
+    Y_binary = np.argmax(Y,axis=0)
+    fig = plt.figure()
+    axes = fig.add_subplot(111)
+    """ fig,axes = plt.subplots(1, n_outputs, figsize=(10,5))
     for i in range(n_outputs):
         # Crear la matriz de confusión para cada columna
         matrizConfusion = metrics.confusion_matrix(Y[i, :], Y_pred_binary[i, :])
 
         mostrarmatriz = metrics.ConfusionMatrixDisplay(confusion_matrix = matrizConfusion)
         mostrarmatriz.plot(cmap='Blues', ax=axes[i])
-        axes[i].set_title(f'Etiqueta {i+1}')
-
+        axes[i].set_title(f'Etiqueta {i+1}') """
+    
+    confusionMatrix = metrics.confusion_matrix(Y_binary,Y_pred_binary)
+    mostrarmatriz = metrics.ConfusionMatrixDisplay(confusion_matrix = confusionMatrix)
+    mostrarmatriz.plot(cmap='Blues', ax=axes)
     #frame para insertar la grafica
     frameMatriz = ctk.CTkFrame(matrizVentana)
     frameMatriz.pack(side="left",fill=ctk.BOTH,expand=True)
@@ -145,16 +165,17 @@ def PuntosExtras():
 
 def Proceso():
     global red
-    entradas = pd.read_csv("Entradas.csv")
-    salidas = pd.read_csv("Salidas.csv")
+    learning_rate = float(TETHA.get())
+    maxepocas = int(TEPOCS.get())
+    entradas = pd.read_csv(FilePath1.name)
+    salidas = pd.read_csv(FilePath2.name)
     X = entradas.T.values
     Y = salidas.T.values
     # Definir parámetros
     n_inputs = X.shape[0]  # 2
     n_outputs = Y.shape[0]  # 4
-    learning_rate = 0.3
     red = OLN(n_inputs, n_outputs, activation_function=logistic)
-    red.fit(X, Y, epochs=5000, lr=learning_rate,n_classes=n_outputs)
+    red.fit(X, Y, epochs=maxepocas, lr=learning_rate,n_classes=n_outputs)
 
     
 
@@ -162,7 +183,18 @@ def Threading():
     t1=Thread(target=Proceso)
     t1.start()
 
-
+def showPlots():
+    global X
+    global Y
+    entradas = pd.read_csv(FilePath1.name)
+    salidas = pd.read_csv(FilePath2.name)
+    X = entradas.T.values
+    Y = salidas.T.values
+    # Definir parámetros
+    n_inputs = X.shape[0]  # 2
+    n_outputs = Y.shape[0]  # 4
+    learning_rate = 0.1
+    generarPlano(frame,n_outputs)
 
     
 #INTERFAZ GRAFICA
@@ -197,23 +229,22 @@ btn.grid(row=7,column=1,pady=20,padx=20)
 btn2= ctk.CTkButton(frameInputs,text = 'Datos Adicionales', command = PuntosExtras)
 btn2.grid(row=8,column=1,pady=20,padx=20)
 
+btnf1= ctk.CTkButton(frameInputs,text = 'Inputs File', command = getFilepath1)
+btnf1.grid(row=9,column=1,pady=20,padx=20) 
+
+btnf2= ctk.CTkButton(frameInputs,text = 'Outputs File', command = getFilepath2)
+btnf2.grid(row=10,column=1,pady=20,padx=20)
+
+btnf2= ctk.CTkButton(frameInputs,text = 'ShowGraph', command = showPlots)
+btnf2.grid(row=11,column=1,pady=20,padx=20)
+
 frameInputs.pack(side='right',fill=ctk.BOTH,expand=True)
 
 frame = ctk.CTkFrame(ventana)
 frame.pack(side='left')
-   
+canvas = FigureCanvasTkAgg(figura, master=frame)
 
 if __name__ == "__main__":
-    entradas = pd.read_csv("Entradas.csv")
-    salidas = pd.read_csv("Salidas.csv")
-    X = entradas.T.values
-    Y = salidas.T.values
-    # Definir parámetros
-    n_inputs = X.shape[0]  # 2
-    n_outputs = Y.shape[0]  # 4
-    learning_rate = 0.1
-
-
-    generarPlano(frame,n_outputs)
+    generarPlano(frame,0)
     ventana.protocol("WM_DELETE_WINDOW", quit)
     ventana.mainloop()
