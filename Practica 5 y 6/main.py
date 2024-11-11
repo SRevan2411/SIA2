@@ -73,7 +73,7 @@ class multicapaDensa:
                 #gradiente descendente (ajustar pesos y bias)
                 for l in range(1,self.L+1):
                     self.w[l] += learning_rate * np.dot(lg[l],a[l-1].T)
-                    self.b[l] += learning_rate * lg[l]
+                    self.b[l] += learning_rate * lg[l] 
             self.grafica(X,Y)
 
     
@@ -92,11 +92,20 @@ class multicapaDensa:
         # Dibujar las fronteras de decisión usando el mismo cmap
         ax.contourf(xx, yy, zz,alpha=0.8,cmap = plt.cm.RdBu)
 
-        for i in range(X.shape[1]):
+        """ for i in range(X.shape[1]):
             if Y[0,i]==0:
                 ax.scatter(X[0,i],X[1,i],edgecolors='k',c='red', marker='o', s=100)
             else:
-                ax.scatter(X[0,i],X[1,i],edgecolors='k',c='blue', marker='o', s=100)
+                ax.scatter(X[0,i],X[1,i],edgecolors='k',c='blue', marker='o', s=100) """
+        # Filtra los índices para cada clase
+        class_0 = Y[0] == 0
+        class_1 = Y[0] == 1
+
+        # Grafica todos los puntos de la clase 0
+        ax.scatter(X[0, class_0], X[1, class_0], edgecolors='k', c='red', marker='o', s=100)
+
+        # Grafica todos los puntos de la clase 1
+        ax.scatter(X[0, class_1], X[1, class_1], edgecolors='k', c='blue', marker='o', s=100)
         canvas.draw() 
 
 
